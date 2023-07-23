@@ -309,7 +309,7 @@ func (c *Client) setupSession(token string) {
 
 	// Update session headers
 	c.headers.Set("Cache-Control", "max-age=0")
-	c.headers.Set("Sec-Ch-Ua", "Microsoft Edge, v=\"117\", Not;A=Brand, v=\"8\", Chromium, v=\"117\"")
+	c.headers.Set("Sec-Ch-Ua", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36")
 	c.headers.Set("Sec-Ch-Ua-Mobile", "0")
 	c.headers.Set("Sec-Fetch-Dest", "document")
 	c.headers.Set("Sec-Fetch-Mode", "navigate")
