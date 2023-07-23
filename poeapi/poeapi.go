@@ -367,7 +367,7 @@ func (c *Client) getDeviceID() string {
 }
 
 func (c *Client) extractFormKey(html string) string {
-	scriptRegex := regexp.MustCompile(`<script>if\(.+\)throw new Error;(.+)</script>`)
+	scriptRegex := regexp.MustCompile(`<script>(.+)function\(\){return .\.join\(""\)};</script>`)
 	scriptText := scriptRegex.FindStringSubmatch(html)[1]
 	keyRegex := regexp.MustCompile(`var .="([0-9a-f]+)",`)
 	keyText := keyRegex.FindStringSubmatch(scriptText)[1]
@@ -588,7 +588,7 @@ func (c *Client) sendQuery(queryName string, variables map[string]interface{}, a
 		jsonData := generatePayload(queryName, variables)
 		payload, _ := json.Marshal(jsonData)
 
-		baseString := string(payload) + c.gqlHeaders["Poe-Formkey"][0] + "WpuLMiXEKKE98j56k"
+		baseString := string(payload) + c.gqlHeaders["Poe-Formkey"][0] + "Jb1hi3fg1MxZpzYfy"
 
 		headers := map[string][]string{
 			"content-type": {"application/json"},
