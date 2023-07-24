@@ -13,11 +13,12 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"strconv"
+	// "strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
+	// "github.com/robertkrimen/otto"
 
 	fhttp "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
@@ -367,21 +368,31 @@ func (c *Client) getDeviceID() string {
 }
 
 func (c *Client) extractFormKey(html string) string {
-	scriptRegex := regexp.MustCompile(`<script>(.+)function\(\){return .\.join\(""\)};</script>`)
-	scriptText := scriptRegex.FindStringSubmatch(html)[1]
-	keyRegex := regexp.MustCompile(`var .="([0-9a-f]+)",`)
-	keyText := keyRegex.FindStringSubmatch(scriptText)[1]
-	cipherRegex := regexp.MustCompile(`.\[(\d+)\]=.\[(\d+)\]`)
-	cipherPairs := cipherRegex.FindAllStringSubmatch(scriptText, -1)
+	scriptRegex := regexp.MustCompile(`<script>(.+?)</script>`)
+	scriptMatches := scriptRegex.FindAllStringSubmatch(html, -1)
 
-	formKeyList := make([]string, len(cipherPairs))
-	for _, pair := range cipherPairs {
-		formKeyIndex, _ := strconv.Atoi(pair[1])
-		keyIndex, _ := strconv.Atoi(pair[2])
-		formKeyList[formKeyIndex] = string(keyText[keyIndex])
+	scriptText := "window = {};"
+	for _, match := range scriptMatches {
+		scriptText += match[1]
 	}
-	formKey := strings.Join(formKeyList, "")
 
+	functionRegex := regexp.MustCompile(`(window\.[a-zA-Z0-9]{17})=function`)
+	functionMatch := functionRegex.FindStringSubmatch(scriptText)
+	if len(functionMatch) < 2 {
+		return "" // 处理未找到 JavaScript 函数赋值的情况
+	}
+
+	functionText := functionMatch[1]
+	scriptText += functionText + "();"
+
+	// 从 scriptText 中提取 formkey 赋值
+	formKeyStart := strings.Index(scriptText, functionText) + len(functionText) + 1
+	formKeyEnd := strings.Index(scriptText[formKeyStart:], ";")
+	if formKeyEnd == -1 {
+		return "" // 处理未找到 formkey 的情况
+	}
+
+	formKey := scriptText[formKeyStart : formKeyStart+formKeyEnd]
 	return formKey
 }
 
