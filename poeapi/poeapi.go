@@ -236,7 +236,7 @@ func (c *Client) PurgeConversation(chatbot string, count int) error {
 }
 
 func (c *Client) requestWithRetries(method string, url string, attempts int, data []byte, headers map[string][]string) (*fhttp.Response, error) {
-	log.Printf("request url is %s ", url )
+	// log.Printf("request url is %s ", url )
 	if attempts == 0 {
 		attempts = 10
 	}
