@@ -91,6 +91,7 @@ func Setup() {
 		"claude-2-100k":                "a2_2",
 		"claude-instant-100k":          "a2_100k",
 		"google-palm":                  "acouchy",
+		"llama_2_70b_chat":             "llama_2_70b_chat",
 	}
 
 	Models.Object = ""
