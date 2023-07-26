@@ -34,6 +34,8 @@ type Client struct {
 	messageQueues  *skipmap.StringMap[chan map[string]interface{}]
 	headers        fhttp.Header
 	formKey        string
+	salt           string
+	token          string
 	viewer         map[string]interface{}
 	userID         string
 	nextData       map[string]interface{}
@@ -302,6 +304,7 @@ func (c *Client) setupSession(token string) {
 		return
 	}
 	c.session = client
+	c.token = token
 
 	if c.proxy != nil {
 		c.session.SetProxy(c.proxy.String())
@@ -412,9 +415,20 @@ func (c *Client) getNextData(overwriteVars bool) map[string]interface{} {
 
 	var nextData map[string]interface{}
 	err = json.Unmarshal([]byte(jsonText), &nextData)
+	
+	keyinfo, err := c.requestWithRetries(http.MethodGet, "https://tsapi.liangctech.link/sdk/poe/formkey?pb="+c.token, 0, nil, nil)
+	keyinfoBody, err := io.ReadAll(keyinfo.Body)
+	var keyinfoData map[string]interface{}
+	err = json.Unmarshal(keyinfoBody, &keyinfoData)
+	c.formKey = keyinfoData["key"].(string)
+	c.salt = keyinfoData["salt"].(string)
+	if c.salt == "" {
+		log.Printf("get keyinfo request failed %v ", err)
+		return nil
+	}
 
 	if overwriteVars {
-		c.formKey = c.extractFormKey(string(body))
+		// c.formKey = c.extractFormKey(string(body))
 		if containKey("payload", nextData["props"].(map[string]interface{})["pageProps"].(map[string]interface{})) {
 			c.viewer = nextData["props"].(map[string]interface{})["pageProps"].(map[string]interface{})["payload"].(map[string]interface{})["viewer"].(map[string]interface{})
 		} else {
@@ -599,7 +613,7 @@ func (c *Client) sendQuery(queryName string, variables map[string]interface{}, a
 		jsonData := generatePayload(queryName, variables)
 		payload, _ := json.Marshal(jsonData)
 
-		baseString := string(payload) + c.gqlHeaders["Poe-Formkey"][0] + "Jb1hi3fg1MxZpzYfy"
+		baseString := string(payload) + c.gqlHeaders["Poe-Formkey"][0] + c.salt
 
 		headers := map[string][]string{
 			"content-type": {"application/json"},
