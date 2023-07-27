@@ -626,7 +626,7 @@ func (c *Client) sendQuery(queryName string, variables map[string]interface{}, a
 		if queryName == "recv" {
 			_, err := c.requestWithRetries(http.MethodPost, gqlRecvURL, attempts, payload, headers)
 			if err != nil {
-				panic(err)
+				return nil
 			}
 			return nil
 		}
@@ -634,7 +634,7 @@ func (c *Client) sendQuery(queryName string, variables map[string]interface{}, a
 
 		// Handle error in HTTP response
 		if err != nil {
-			panic(err)
+			return nil
 		}
 
 		defer resp.Body.Close()
