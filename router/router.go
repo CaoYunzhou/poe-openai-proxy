@@ -29,6 +29,7 @@ func Setup(engine *gin.Engine) {
 		c.JSON(http.StatusOK, conf.Models)
 	}
 
+    engine.GET("/health", healthCheck)
 	engine.GET("/models", getModels)
 	engine.GET("/v1/models", getModels)
 
@@ -185,4 +186,10 @@ func SetCORS(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 	c.Writer.Header().Set("Content-Type", "application/json")
+}
+
+func healthCheck(c *gin.Context) {
+    c.JSON(http.StatusOK, gin.H{
+        "status": "ok",
+    })
 }
