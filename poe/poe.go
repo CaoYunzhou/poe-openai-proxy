@@ -119,13 +119,13 @@ func (c *Client) getContentToSend(messages []Message) string {
 	}
 	for _, message := range messages {
 		if simulateRoles {
-			content += "||>" + leadingMap[message.Role] + ":\n" + message.Content + "\n"
+			content += "||>" + leadingMap[message.Role] + "-\n" + message.Content + "\n"
 		} else {
 			content += message.Content + "\n"
 		}
 	}
 	if simulateRoles {
-		content += "||>Assistant:\n"
+		content += "||>Assistant-\n"
 	}
 	util.Logger.Debug("Generated content to send: " + content)
 	return content
@@ -165,9 +165,9 @@ func (c *Client) Stream(messages []Message, model string) (<-chan string, error)
 }
 
 func (c *Client) Ask(messages []Message, model string) (*Message, error) {
-	content := c.getContentToSend(messages)
+	content = c.getContentToSend(messages)
 
-	bot, ok := conf.Conf.Bot[model]
+	bot, ok = conf.Conf.Bot[model]
 	if !ok {
 		bot = "capybara"
 	}
