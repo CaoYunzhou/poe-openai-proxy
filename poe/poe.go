@@ -119,13 +119,13 @@ func (c *Client) getContentToSend(messages []Message) string {
 	}
 	for _, message := range messages {
 		if simulateRoles {
-			content += "||>" + leadingMap[message.Role] + ":\n" + message.Content + "\n"
+			content += "||>" + leadingMap[message.Role] + "-\n" + message.Content + "\n"
 		} else {
 			content += message.Content + "\n"
 		}
 	}
 	if simulateRoles {
-		content += "||>Assistant:\n"
+		content += "||>Assistant-\n"
 	}
 	util.Logger.Debug("Generated content to send: " + content)
 	return content
